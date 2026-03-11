@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ringle_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./ringle-backend
+      dockerfile: Dockerfile
+    command: bundle exec rails server -b 0.0.0.0 -p 3001
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/ringle_development
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./ringle-backend:/app
+      - bundle_cache:/usr/local/bundle
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build:
+      context: ./ringle-frontend
+      dockerfile: Dockerfile
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_USER_ID: "1"
+    depends_on:
+      - backend
+    volumes:
+      - ./ringle-frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  postgres_data:
+  bundle_cache:

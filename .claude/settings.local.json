@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\Samsung\\\\Documents\\\\Development\\\\Personal_Projects\\\\2026\\\\SDUI\\\\.ai\"\" | grep -E \"^d \")",
+      "Bash(dir \"C:\\\\Users\\\\Samsung\\\\Documents\\\\Development\\\\Personal_Projects\\\\2026\\\\SDUI\\\\.ai\" /B /AD)"
+    ]
+  },
+  "outputStyle": "default"
+}
